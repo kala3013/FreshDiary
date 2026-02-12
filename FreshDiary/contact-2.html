@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact – FreshDairy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+  <div class="logo">🥛 FreshDairy</div>
+  <nav class="center-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="products.html">Products</a>
+    <a href="process.html">Process</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <div style="flex:1 1 0;"></div>
+</header>
+<section class="contact">
+  <h2>Contact Us</h2>
+  <form id="contactForm">
+    <input type="text" id="contact-name" placeholder="Your Name" required>
+    <input type="email" id="contact-email" placeholder="Your Email" required>
+    <textarea id="contact-message" placeholder="Your Message" required></textarea>
+    <button class="btn" type="submit">Send Message</button>
+  </form>
+</section>
+
+<script src="notification.js"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const messageData = {
+    name: document.getElementById('contact-name').value,
+    email: document.getElementById('contact-email').value,
+    message: document.getElementById('contact-message').value
+  };
+
+  try {
+    const response = await fetch('api.php?action=contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(messageData)
+    });
+
+    if (response.ok) {
+      FDNotify.success('Message Sent!', 'Thank you for contacting us! We will get back to you soon.');
+      this.reset();
+    } else {
+      FDNotify.error('Failed', 'Could not send message. Please try again.');
+    }
+  } catch (error) {
+    FDNotify.error('Connection Error', 'Could not connect to server.');
+  }
+});
+</script>
+</body>
+</html>

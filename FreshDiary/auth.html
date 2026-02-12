@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Join FreshDairy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+<style>
+  .auth-container { max-width: 400px; margin: 80px auto; padding: 40px; background: #fff; border-radius: 22px; box-shadow: 0 10px 30px rgba(47,125,87,0.1); }
+  .auth-toggle { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #eee; }
+  .auth-toggle span { padding-bottom: 10px; cursor: pointer; font-weight: 600; color: #888; }
+  .auth-toggle span.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+  form { display: flex; flex-direction: column; gap: 15px; }
+  input { padding: 14px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Inter', sans-serif; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🥛 FreshDairy</div>
+  <nav><a href="index.html">← Back to Home</a></nav>
+</header>
+
+<div class="auth-container">
+  <div class="auth-toggle">
+    <span id="tab-login" class="active" onclick="showAuth('login')">Sign In</span>
+    <span id="tab-signup" onclick="showAuth('signup')">New Account</span>
+  </div>
+
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <h3>Welcome Back</h3>
+    <input type="email" id="login-email" placeholder="Email Address" required>
+    <input type="password" id="login-pass" placeholder="Password" required>
+    <button type="submit" class="btn">Sign In</button>
+  </form>
+
+  <form id="signup-form" class="hidden" onsubmit="handleSignup(event)">
+    <h3>Create Account</h3>
+    <input type="text" id="signup-name" placeholder="Full Name" required>
+    <input type="email" id="signup-email" placeholder="Email Address" required>
+    <input type="password" id="signup-pass" placeholder="Create Password" required>
+    <button type="submit" class="btn">Sign Up</button>
+  </form>
+</div>
+
+<script src="notification.js"></script>
+<script>
+function showAuth(type) {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const loginTab = document.getElementById('tab-login');
+  const signupTab = document.getElementById('tab-signup');
+
+  if(type === 'login') {
+    loginForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
+    loginTab.classList.add('active');
+    signupTab.classList.remove('active');
+  } else {
+    loginForm.classList.add('hidden');
+    signupForm.classList.remove('hidden');
+    loginTab.classList.remove('active');
+    signupTab.classList.add('active');
+  }
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  const userData = {
+    name: document.getElementById('signup-name').value,
+    email: document.getElementById('signup-email').value,
+    password: document.getElementById('signup-pass').value
+  };
+
+  const response = await fetch('http://localhost:5000/api/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    localStorage.setItem('fd_current_user', JSON.stringify(data.user));
+    FDNotify.signupSuccess(data.user.name);
+    setTimeout(() => { window.location.href = "index.html"; }, 1500);
+  } else {
+    FDNotify.error('Signup Failed', data.message);
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const credentials = {
+    email: document.getElementById('login-email').value,
+    password: document.getElementById('login-pass').value
+  };
+
+  const response = await fetch('http://localhost:5000/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials)
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    localStorage.setItem('fd_current_user', JSON.stringify(data));
+    FDNotify.loginSuccess(data.name);
+    setTimeout(() => { window.location.href = "index.html"; }, 1500);
+  } else {
+    FDNotify.error('Login Failed', data.message);
+  }
+}
+async function loadOrderHistory() {
+  const user = JSON.parse(localStorage.getItem('fd_current_user'));
+  if (!user) return;
+
+  const response = await fetch(`http://localhost:5000/api/orders/${user.email}`);
+  const orders = await response.json();
+  
+  const historyContainer = document.getElementById('order-history');
+  historyContainer.innerHTML = orders.map(order => `
+    <div class="history-card">
+      <div>
+        <span class="status-tag">${order.status}</span>
+        <h4>Order #${order._id.slice(-6).toUpperCase()}</h4>
+        <p>${new Date(order.date).toLocaleDateString()}</p>
+      </div>
+      <strong>₹${order.totalAmount}</strong>
+    </div>
+  `).join('');
+
+}
+// Inside your handleLogin function
+if (data.email === 'admin@freshdairy.com') { // Example admin check
+    localStorage.setItem('fd_admin_logged_in', 'true');
+    window.location.href = "admin.html";
+} else {
+    window.location.href = "index.html";
+}
+</script>
+</body>
+</html>

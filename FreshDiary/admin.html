@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel – FreshDairy</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+<style>
+  .admin-grid { display: grid; grid-template-columns: 200px 1fr; gap: 30px; padding: 40px; }
+  .admin-nav { display: flex; flex-direction: column; gap: 10px; }
+  .admin-nav button { padding: 12px; text-align: left; cursor: pointer; border: none; background: #eee; border-radius: 8px; font-weight: 600; }
+  .admin-nav button.active { background: var(--primary); color: white; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+  th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+  th { background: #f8f9fa; color: var(--primary); }
+  .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 12px; color: white; }
+  .status-pending { background: #f1c40f; }
+  .status-delivered { background: #2f7d57; }
+</style>
+</head>
+<body style="background: #f4f7f6;">
+
+<div class="admin-grid">
+  <aside class="admin-nav">
+    <h3 style="color: var(--primary); margin-bottom: 20px;">FreshAdmin</h3>
+    <button onclick="switchTab('orders')" id="btn-orders" class="active">Orders</button>
+    <button onclick="switchTab('customers')" id="btn-customers">Customers</button>
+    <button onclick="switchTab('messages')" id="btn-messages">Messages</button>
+  </aside>
+
+  <main id="content-area">
+    </main>
+</div>
+
+<script src="notification.js"></script>
+<script>
+async function switchTab(tab) {
+  // Update UI buttons
+  document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + tab).classList.add('active');
+  
+  const content = document.getElementById('content-area');
+  if (localStorage.getItem('fd_admin_logged_in') !== 'true') {
+    FDNotify.error('Access Denied', 'Please login as admin to access this page.');
+    setTimeout(() => { window.location.href = "index.html"; }, 1500);
+    return;
+}
+  if(tab === 'orders') {
+    const res = await fetch('http://localhost:5000/api/admin/orders');
+    const orders = await res.json();
+    content.innerHTML = `<h2>Manage Orders</h2><table>
+      <tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+      ${orders.map(o => `<tr>
+        <td>${o._id.slice(-6).toUpperCase()}</td>
+        <td>${o.userEmail}</td>
+        <td>₹${o.totalAmount}</td>
+        <td><span class="status-pill status-${o.status.toLowerCase()}">${o.status}</span></td>
+        <td><button onclick="updateStatus('${o._id}', 'Delivered')">Mark Delivered</button></td>
+      </tr>`).join('')}
+    </table>`;
+  }
+
+  if(tab === 'customers') {
+    const res = await fetch('http://localhost:5000/api/admin/customers');
+    const users = await res.json();
+    content.innerHTML = `<h2>Registered Families</h2><table>
+      <tr><th>Name</th><th>Email</th></tr>
+      ${users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td></tr>`).join('')}
+    </table>`;
+  }
+}
+
+async function updateStatus(id, newStatus) {
+  await fetch(`http://localhost:5000/api/admin/orders/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ status: newStatus })
+  });
+  switchTab('orders'); // Refresh
+}
+
+// Default tab
+switchTab('orders');
+</script>
+</body>
+</html>

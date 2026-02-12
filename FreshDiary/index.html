@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FreshDairy </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div id="home"></div>
+<header>
+  <div class="logo">🥛FreshDairy</div>
+  <nav class="nav-center">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="products.html">Products</a>
+    <a href="process.html">Process</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <div id="user-nav">
+      <a href="auth.html" class="btn-outline" style="padding: 8px 20px; text-decoration: none;">Login</a>
+    </div>
+
+    <div id="cart-icon" style="position:relative; cursor:pointer;">
+       <span id="cart-badge" style="position:absolute; top:-6px; right:-10px; background:#2f7d57; color:#fff; border-radius:50%; padding:2px 7px; font-size:13px; display:none;">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO (Home Section Only) -->
+<section class="hero">
+  <div class="hero-text">
+    <span class="tag">Farm Fresh Since 1974</span>
+    <h1>Pure & Fresh<br>Dairy Products</h1>
+    <p>
+      From our family-owned farm to your home, FreshDairy delivers
+      wholesome dairy products made with care, tradition, and love.
+    </p>
+    <div class="hero-btns">
+      <a href="products.html" class="btn">Shop Products</a>
+      <a href="story/Video Project.mp4" class="btn-outline">Our Story</a>
+    </div>
+  </div>
+  <img src="images/hero.png" alt="Fresh Dairy Products">
+</section>
+
+
+
+<footer>
+  <div id="message-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:4000;align-items:center;justify-content:center;">
+    <div style="background:#fff;max-width:350px;width:90vw;padding:32px 24px 24px 24px;border-radius:18px;box-shadow:0 8px 32px rgba(47,125,87,0.18);position:relative;text-align:center;">
+      <button id="close-message" style="position:absolute;top:10px;right:18px;font-size:28px;background:none;border:none;color:#2f7d57;cursor:pointer;">&times;</button>
+      <h3 style="margin-top:0;color:#2f7d57;">Message Sent!</h3>
+      <div style="color:#234;line-height:1.7;font-size:1.08rem;">Thank you for contacting us! We will get back to you soon.</div>
+    </div>
+  </div>
+  <!-- Story Modal -->
+ 
+  <p>© 2026 FreshDairy. All Rights Reserved.</p>
+</footer>
+
+<!-- Cart Modal -->
+<div id="cart-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;max-width:400px;width:90vw;padding:30px 20px 20px 20px;border-radius:18px;box-shadow:0 8px 32px rgba(47,125,87,0.18);position:relative;">
+    <button id="close-cart" style="position:absolute;top:10px;right:18px;font-size:28px;background:none;border:none;color:#2f7d57;cursor:pointer;">&times;</button>
+    <h2 style="margin-top:0;">Your Cart</h2>
+    <div id="cart-items"></div>
+    <div id="cart-empty" style="text-align:center;color:#888;margin:20px 0;">Your cart is empty.</div>
+    <button id="place-order" class="btn" style="width:100%;margin-top:18px;">Place Order</button>
+  </div>
+</div>
+</footer>
+
+<script src="notification.js"></script>
+<script>
+// Message Sent Modal logic
+const messageModal = document.getElementById('message-modal');
+const closeMessageBtn = document.getElementById('close-message');
+closeMessageBtn.onclick = function() {
+  messageModal.style.display = 'none';
+};
+messageModal.onclick = function(e) {
+  if(e.target === messageModal) messageModal.style.display = 'none';
+};
+
+// Contact form handler (modal)
+document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  messageModal.style.display = 'flex';
+  this.reset();
+});
+// Shop Products scroll
+document.querySelector('.hero-btns .btn')?.addEventListener('click', function() {
+  document.getElementById('products').scrollIntoView({behavior:'smooth'});
+});
+
+// Watch Story modal
+const storyModal = document.getElementById('story-modal');
+const closeStoryBtn = document.getElementById('close-story');
+document.querySelector('.hero-btns .btn-outline')?.addEventListener('click', function() {
+  storyModal.style.display = 'flex';
+});
+closeStoryBtn.onclick = function() {
+  storyModal.style.display = 'none';
+};
+storyModal.onclick = function(e) {
+  if(e.target === storyModal) storyModal.style.display = 'none';
+};
+// Cart Modal Logic
+const cartIcon = document.getElementById('cart-icon');
+const cartModal = document.getElementById('cart-modal');
+const cartItemsDiv = document.getElementById('cart-items');
+const cartEmpty = document.getElementById('cart-empty');
+const closeCartBtn = document.getElementById('close-cart');
+const placeOrderBtn = document.getElementById('place-order');
+
+function renderCart() {
+  cartItemsDiv.innerHTML = '';
+  const items = Object.entries(cart);
+  if(items.length === 0) {
+    cartEmpty.style.display = '';
+    placeOrderBtn.disabled = true;
+    return;
+  }
+  cartEmpty.style.display = 'none';
+  placeOrderBtn.disabled = false;
+  items.forEach(([name, item]) => {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.justifyContent = 'space-between';
+    div.style.margin = '10px 0';
+    div.innerHTML = `<span>${name} <span style='color:#888;font-size:13px;'>(x${item.qty})</span></span><span>₹${item.price * item.qty}</span>`;
+    cartItemsDiv.appendChild(div);
+  });
+}
+
+cartIcon.onclick = () => {
+  renderCart();
+  cartModal.style.display = 'flex';
+};
+closeCartBtn.onclick = () => {
+  cartModal.style.display = 'none';
+};
+cartModal.onclick = (e) => {
+  if(e.target === cartModal) cartModal.style.display = 'none';
+};
+placeOrderBtn.onclick = async () => {
+  const currentUser = JSON.parse(localStorage.getItem('fd_current_user'));
+  
+  if(!currentUser) {
+    FDNotify.warning('Login Required', 'Please sign in to place an order.');
+    setTimeout(() => { window.location.href = "auth.html"; }, 1500);
+    return;
+  }
+
+  const orderData = {
+    userEmail: currentUser.email,
+    items: Object.entries(cart).map(([name, item]) => ({ name, qty: item.qty, price: item.price })),
+    totalAmount: Object.values(cart).reduce((sum, item) => sum + (item.price * item.qty), 0)
+  };
+
+  const response = await fetch('http://localhost:5000/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderData)
+  });
+
+  if (response.ok) {
+    FDNotify.orderPlaced();
+    // Clear cart logic...
+    for(const k in cart) delete cart[k];
+    updateBadge();
+    renderCart();
+    cartModal.style.display = 'none';
+  }
+};
+
+function updateBadge() {
+  const count = Object.values(cart).reduce((a,b)=>a+b.qty,0);
+  badge.textContent = count;
+  badge.style.display = count>0?"inline-block":"none";
+}
+
+document.querySelectorAll(".card button").forEach(btn=>{
+  btn.onclick = ()=>{
+    const card = btn.parentElement;
+    const name = card.querySelector("h3").innerText;
+    const price = parseInt(card.querySelector("p").innerText.replace(/\D/g,''));
+    if(cart[name]) cart[name].qty++;
+    else cart[name] = {price,qty:1};
+    updateBadge();
+    btn.innerText="Added!";
+    setTimeout(()=>btn.innerText="Add to Cart",1000);
+  };
+});
+function checkLogin() {
+  const userNav = document.getElementById('user-nav');
+  // Retrieve the logged-in user details from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('fd_current_user'));
+
+  if (currentUser && currentUser.name) {
+    // Get the first letter of the name
+    const firstLetter = currentUser.name.charAt(0);
+
+    // Replace the Login button with a circular Letter Logo
+    userNav.innerHTML = `
+      <div class="user-nav-wrapper">
+        <div class="user-avatar" title="${currentUser.name}">
+          ${firstLetter}
+        </div>
+        <div style="display:flex; flex-direction:column;">
+          <span style="font-weight:600; font-size:14px; color:var(--dark);">${currentUser.name}</span>
+          <button onclick="logout()" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:11px; text-align:left; padding:0;">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function logout() {
+  // Clear the session and refresh
+  localStorage.removeItem('fd_current_user');
+  window.location.reload();
+}
+
+// Run on load
+document.addEventListener('DOMContentLoaded', checkLogin);
+</script>
+ 
+</body>
+</html>

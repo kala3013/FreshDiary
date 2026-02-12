@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Products – FreshDairy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="logo">🥛 FreshDairy</div>
+
+  <nav class="nav-center">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="products.html" class="active">Products</a>
+    <a href="process.html">Process</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="contact.html">Contact</a>
+    <a href="cart.html">Cart 🛒</a>
+  </nav>
+</header>
+</header>
+
+<section class="products">
+  <h2>Our Products</h2>
+
+  <div class="product-grid">
+
+    <div class="card">
+      <img src="images/product1.png">
+      <h3>Fresh Milk</h3>
+      <p>₹60</p>
+      <button onclick="addToCart('Fresh Milk',60)">Add to Cart</button>
+    </div>
+
+    <div class="card">
+      <img src="images/product2.png">
+      <h3>Organic Butter</h3>
+      <p>₹120</p>
+      <button onclick="addToCart('Organic Butter',120)">Add to Cart</button>
+    </div>
+
+    <div class="card">
+      <img src="images/product3.png">
+      <h3>Natural Cheese</h3>
+      <p>₹250</p>
+      <button onclick="addToCart('Natural Cheese',250)">Add to Cart</button>
+    </div>
+
+    <div class="card">
+      <img src="images/product4.png">
+      <h3>Fresh Curd</h3>
+      <p>₹50</p>
+      <button onclick="addToCart('Fresh Curd',50)">Add to Cart</button>
+    </div>
+
+    <div class="card">
+      <img src="images/product5.png">
+      <h3>Organic Paneer</h3>
+      <p>₹180</p>
+      <button onclick="addToCart('Organic Paneer',180)">Add to Cart</button>
+    </div>
+
+    <div class="card">
+      <img src="images/product6.png">
+      <h3>Pure Cow Ghee</h3>
+      <p>₹650</p>
+      <button onclick="addToCart('Pure Cow Ghee',650)">Add to Cart</button>
+    </div>
+
+  </div>
+</section>
+
+<script src="notification.js"></script>
+<script>
+function addToCart(name, price) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let item = cart.find(p => p.name === name);
+
+  if(item) {
+    item.qty++;
+  } else {
+    cart.push({ name, price, qty: 1 });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  FDNotify.cartAdded(name, price);
+}
+</script>
+
+</body>
+</html>

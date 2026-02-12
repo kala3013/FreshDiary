@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payment – FreshDairy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notification.css">
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🥛 FreshDairy</div>
+</header>
+
+<section class="contact">
+  <h2>Payment Details</h2>
+
+  <form onsubmit="placeOrder(event)">
+    <input type="text" placeholder="Full Name" required>
+    <input type="text" placeholder="Delivery Address" required>
+    <input type="number" placeholder="Mobile Number" required>
+    <select required>
+      <option value="">Select Payment Method</option>
+      <option>Cash on Delivery</option>
+      <option>UPI</option>
+      <option>Debit Card</option>
+    </select>
+    <button class="btn">Place Order</button>
+  </form>
+</section>
+
+<script src="notification.js"></script>
+<script>
+function placeOrder(e) {
+  e.preventDefault();
+  FDNotify.orderPlaced();
+  localStorage.removeItem("cart");
+  setTimeout(() => { window.location.href = "index.html"; }, 2000);
+}
+</script>
+
+</body>
+</html>
